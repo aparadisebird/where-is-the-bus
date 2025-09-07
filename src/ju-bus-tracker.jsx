@@ -161,6 +161,42 @@ export default function App() {
   );
 }
 
+// --- NEW High-Fidelity Route and Stop Data ---
+const ROUTE_PATH = [
+    { lat: 23.89785, lng: 90.26784 }, { lat: 23.88455, lng: 90.26779 },
+    { lat: 23.88104, lng: 90.26776 }, { lat: 23.87475, lng: 90.26787 },
+    { lat: 23.87485, lng: 90.26952 }, { lat: 23.87574, lng: 90.27086 },
+    { lat: 23.87593, lng: 90.27316 }, { lat: 23.87039, lng: 90.27262 },
+    { lat: 23.86382, lng: 90.26818 }, { lat: 23.85885, lng: 90.26242 },
+    { lat: 23.84781, lng: 90.25743 }, { lat: 23.81187, lng: 90.25751 },
+    { lat: 23.79946, lng: 90.26296 }, { lat: 23.79334, lng: 90.27050 },
+    { lat: 23.78591, lng: 90.33011 }, { lat: 23.78152, lng: 90.35191 },
+    { lat: 23.77515, lng: 90.36531 }, { lat: 23.75830, lng: 90.37408 },
+    { lat: 23.74784, lng: 90.38037 }, { lat: 23.73888, lng: 90.38335 },
+    { lat: 23.73876, lng: 90.39091 }, { lat: 23.73814, lng: 90.39568 },
+    { lat: 23.73272, lng: 90.39552 }, { lat: 23.72797, lng: 90.40025 },
+    { lat: 23.72823, lng: 90.40402 }, { lat: 23.72456, lng: 90.40490 }
+];
+
+const BUS_STOPS = [
+    { id: 'ju_transport', name: 'JU Transport Office', position: { lat: 23.89785, lng: 90.26784 } },
+    { id: 'murad_chatter', name: 'Murad Chatter', position: { lat: 23.88104, lng: 90.26776 } },
+    { id: 'mmh_hall', name: 'MMH Hall', position: { lat: 23.87574, lng: 90.27086 } },
+    { id: 'radio_colony', name: 'Radio Colony', position: { lat: 23.85885, lng: 90.26242 } },
+    { id: 'savar', name: 'Savar', position: { lat: 23.84781, lng: 90.25743 } },
+    { id: 'hemayetpur', name: 'Hemayetpur', position: { lat: 23.79334, lng: 90.27050 } },
+    { id: 'amin_bazar', name: 'Amin Bazar', position: { lat: 23.78591, lng: 90.33011 } },
+    { id: 'technical', name: 'Technical', position: { lat: 23.78152, lng: 90.35191 } },
+    { id: 'shyamoli', name: 'Shyamoli', position: { lat: 23.77515, lng: 90.36531 } },
+    { id: 'aarong', name: 'Aarong', position: { lat: 23.75830, lng: 90.37408 } },
+    { id: 'science_lab', name: 'Science Lab', position: { lat: 23.73888, lng: 90.38335 } },
+    { id: 'katabon', name: 'Katabon', position: { lat: 23.73876, lng: 90.39091 } },
+    { id: 'shahbag', name: 'Shahbag', position: { lat: 23.73814, lng: 90.39568 } },
+    { id: 'tsc', name: 'TSC', position: { lat: 23.73272, lng: 90.39552 } },
+    { id: 'bongobazar', name: 'Bongobazar', position: { lat: 23.72456, lng: 90.40490 } }
+];
+
+
 // --- Google Map Component ---
 const GoogleMapComponent = ({ busLocation }) => {
   const mapDivRef = useRef(null);
@@ -174,11 +210,7 @@ const GoogleMapComponent = ({ busLocation }) => {
       setApiLoaded(true);
       return;
     }
-
-    if (document.getElementById('google-maps-script')) {
-        // Script already added by another instance of this component
-        return;
-    }
+    if (document.getElementById('google-maps-script')) return;
 
     const script = document.createElement('script');
     script.id = 'google-maps-script';
@@ -186,36 +218,63 @@ const GoogleMapComponent = ({ busLocation }) => {
     script.async = true;
     script.defer = true;
     
-    window.initMap = () => {
-      // Set a global flag or use a more robust event system if needed
-      window.googleMapsApiLoaded = true;
-      // Find all components waiting for the API and update their state
-      document.dispatchEvent(new Event('google-maps-api-loaded'));
-    };
+    window.initMap = () => document.dispatchEvent(new Event('google-maps-api-loaded'));
     
     const onApiLoad = () => setApiLoaded(true);
     document.addEventListener('google-maps-api-loaded', onApiLoad);
-
     document.head.appendChild(script);
-
-    return () => {
-      document.removeEventListener('google-maps-api-loaded', onApiLoad);
-    };
+    
+    return () => document.removeEventListener('google-maps-api-loaded', onApiLoad);
   }, []);
 
   // Effect to initialize the map once API is loaded
   useEffect(() => {
     if (isApiLoaded && mapDivRef.current && !mapInstance.current) {
       const mapOptions = {
-        center: { lat: 23.882, lng: 90.269 }, // JU Campus
-        zoom: 14,
+        center: { lat: 23.81, lng: 90.33 }, // Centered on the entire route
+        zoom: 12,
         disableDefaultUI: true,
         zoomControl: true,
-        mapId: "1c2f6d2f7f2868a", // A cleaner map style
+        mapId: "1c2f6d2f7f2868a",
       };
       mapInstance.current = new window.google.maps.Map(mapDivRef.current, mapOptions);
     }
   }, [isApiLoaded]);
+
+  // Effect to draw route and stops
+  useEffect(() => {
+    if (mapInstance.current) {
+        // Draw the route line
+        new window.google.maps.Polyline({
+            path: ROUTE_PATH,
+            geodesic: true,
+            strokeColor: '#4285F4', // A nice Google blue
+            strokeOpacity: 0.8,
+            strokeWeight: 5,
+            map: mapInstance.current,
+        });
+
+        // Draw the stop markers
+        BUS_STOPS.forEach(stop => {
+            const marker = new window.google.maps.Marker({
+                position: stop.position,
+                map: mapInstance.current,
+                title: stop.name,
+                icon: {
+                    path: window.google.maps.SymbolPath.CIRCLE,
+                    scale: 7,
+                    fillColor: "#FFFFFF",
+                    fillOpacity: 1,
+                    strokeColor: "#000000",
+                    strokeWeight: 2,
+                },
+            });
+            // Add a simple info window on click
+            const infowindow = new window.google.maps.InfoWindow({ content: `<b>${stop.name}</b>` });
+            marker.addListener("click", () => infowindow.open(mapInstance.current, marker));
+        });
+    }
+  }, [isApiLoaded]); // This effect runs once the map is ready
 
   // Effect to update the marker when busLocation changes
   useEffect(() => {
@@ -223,22 +282,20 @@ const GoogleMapComponent = ({ busLocation }) => {
       const position = { lat: busLocation.lat, lng: busLocation.lng };
 
       if (!markerInstance.current) {
-        // Create marker
         markerInstance.current = new window.google.maps.Marker({
           position,
           map: mapInstance.current,
           icon: {
             path: 'M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11C5.84 5 5.28 5.42 5.08 6.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z',
-            fillColor: '#1a73e8',
+            fillColor: '#EA4335', // A distinct red for the bus
             fillOpacity: 1.0,
-            strokeWeight: 0,
-            rotation: 0,
-            scale: 1.3,
+            strokeWeight: 1,
+            strokeColor: '#FFFFFF',
+            scale: 1.5,
             anchor: new window.google.maps.Point(12, 12),
           },
         });
       } else {
-        // Update position
         markerInstance.current.setPosition(position);
       }
       mapInstance.current.panTo(position);
@@ -255,12 +312,10 @@ const GoogleMapComponent = ({ busLocation }) => {
 const Modal = ({ modalConfig, closeModal }) => {
     const { title, message, type, onConfirm } = modalConfig;
     if (!type) return null;
-
     const handleConfirm = () => {
         if (onConfirm) onConfirm();
         closeModal(); 
     };
-
     return (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-sm text-center">
@@ -268,13 +323,9 @@ const Modal = ({ modalConfig, closeModal }) => {
                 <p className="text-gray-700 mb-6">{message}</p>
                 <div className={`flex ${type === 'confirm' ? 'justify-between' : 'justify-center'} space-x-4`}>
                     {type === 'confirm' && (
-                         <button onClick={closeModal} className="px-6 py-2 rounded bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold">
-                            Cancel
-                        </button>
+                         <button onClick={closeModal} className="px-6 py-2 rounded bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold">Cancel</button>
                     )}
-                    <button onClick={handleConfirm} className="px-6 py-2 rounded text-white font-semibold bg-blue-500 hover:bg-blue-600">
-                        {type === 'confirm' ? "Confirm" : "OK"}
-                    </button>
+                    <button onClick={handleConfirm} className="px-6 py-2 rounded text-white font-semibold bg-blue-500 hover:bg-blue-600">{type === 'confirm' ? "Confirm" : "OK"}</button>
                 </div>
             </div>
         </div>
@@ -283,31 +334,18 @@ const Modal = ({ modalConfig, closeModal }) => {
 
 // --- Custom Password Prompt Component ---
 const PasswordPrompt = ({ onConfirm, onCancel }) => {
-    const [password, setPassword] = useState('');
+    const [password, setPassword] = 'useState'('');
     const inputRef = useRef(null);
     useEffect(() => inputRef.current?.focus(), []);
-
     const handleSubmit = (e) => { e.preventDefault(); onConfirm(password); };
-
     return (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
             <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-xl p-6 w-full max-w-sm">
                 <h3 className="text-lg font-bold mb-4">Admin Access</h3>
-                <input
-                    ref={inputRef}
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Enter password"
-                />
+                <input ref={inputRef} type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter password"/>
                 <div className="flex justify-end space-x-4 mt-6">
-                    <button type="button" onClick={onCancel} className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold">
-                        Cancel
-                    </button>
-                    <button type="submit" className="px-4 py-2 rounded bg-blue-500 hover:bg-blue-600 text-white font-semibold">
-                        Enter
-                    </button>
+                    <button type="button" onClick={onCancel} className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold">Cancel</button>
+                    <button type="submit" className="px-4 py-2 rounded bg-blue-500 hover:bg-blue-600 text-white font-semibold">Enter</button>
                 </div>
             </form>
         </div>
