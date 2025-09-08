@@ -227,7 +227,11 @@ export default function App() {
           )}
       </main>
 
-       <footer className="w-full p-4 text-center text-xs text-gray-600"><p>&copy; {new Date().getFullYear()} JU Bus Tracker.</p><button onClick={toggleAdminView} className="text-blue-500 hover:underline mt-2">{isAdmin ? 'Exit Admin Mode' : 'Admin Access'}</button></footer>
+       <footer className="w-full p-4 text-center text-xs text-gray-600">
+          <p>&copy; {new Date().getFullYear()} JU Bus Tracker.</p>
+          <p className="mt-1">Developed By <a href="https://sssiam.vercel.app" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">ss. siam</a></p>
+          <button onClick={toggleAdminView} className="text-blue-500 hover:underline mt-2">{isAdmin ? 'Exit Admin Mode' : 'Admin Access'}</button>
+        </footer>
        <Modal modalConfig={modal} closeModal={() => setModal({ title: '', message: '', type: null })} />
        {showPasswordPrompt && <PasswordPrompt onConfirm={handlePasswordSubmit} onCancel={() => setShowPasswordPrompt(false)} />}
        {showSchedule && <ScheduleModal onClose={() => setShowSchedule(false)} />}
