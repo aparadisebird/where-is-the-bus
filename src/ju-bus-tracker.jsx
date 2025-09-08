@@ -198,7 +198,7 @@ export default function App() {
         {currentPage === 'how-to-use' && <HowToUsePage />}
         {currentPage === 'about' && <AboutPage />}
         {currentPage === 'contact' && <ContactPage />}
-        {currentPage === 'hear-radio' && <RadioPage />} 
+        {currentPage === 'hear-radio' && <RadioPage setModal={setModal} />} 
         
         {isAdmin && (
              <div className="mt-6 bg-white p-6 rounded-lg shadow-lg">
@@ -290,29 +290,29 @@ const ContactPage = () => (
     </PageCard>
 );
 
-const RadioPage = () => {
+const RadioPage = ({ setModal }) => {
+    // --- UPDATED with secure HTTPS links ---
     const PRESET_STATIONS = [
-        { name: "Radio Foorti 88.0 FM", url: "http://103.253.46.134:8000/stream" },
-        { name: "ABC Radio 89.2 FM", url: "http://ample-zeno-03.radio-zeno.com/gfts02123qruv" },
+        { name: "Radio Foorti 88.0 FM", url: "https://stream.zeno.fm/g27wrm2kttzuv" },
+        { name: "ABC Radio 89.2 FM", url: "https://stream.zeno.fm/gfts02123qruv" },
         { name: "Radio Today 89.6 FM", url: "https://stream.zeno.fm/s428z2y292quv" },
     ];
-    const [stations, setStations] = useState(PRESET_STATIONS);
+    
     const [currentStation, setCurrentStation] = useState(null);
     const [isPlaying, setIsPlaying] = useState(false);
+    const [isLoading, setIsLoading] = useState(null); // URL of loading station
     const audioRef = useRef(null);
 
     const togglePlayPause = (station) => {
         if (currentStation && currentStation.url === station.url) {
             if (isPlaying) {
                 audioRef.current.pause();
-                setIsPlaying(false);
             } else {
                 audioRef.current.play();
-                setIsPlaying(true);
             }
         } else {
             setCurrentStation(station);
-            setIsPlaying(true);
+            setIsLoading(station.url);
         }
     };
 
@@ -321,36 +321,42 @@ const RadioPage = () => {
             audioRef.current.src = currentStation.url;
             audioRef.current.play().catch(error => {
                 console.error("Audio play error:", error);
+                setModal({title: "Playback Error", message: `Could not play ${currentStation.name}. The station may be temporarily offline.`, type: 'alert'});
+                setIsLoading(null);
                 setIsPlaying(false);
             });
         }
     }, [currentStation]);
+
+    const handleOnCanPlay = () => {
+        setIsLoading(null);
+        setIsPlaying(true);
+    };
     
     return (
         <PageCard title="Hear Radio">
             <p>Listen to live FM radio stations from Bangladesh while you wait.</p>
             <div className="mt-4">
-                {/* Hidden Audio Player */}
-                <audio ref={audioRef} onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} crossOrigin="anonymous"></audio>
-                
-                {/* Station List */}
+                <audio ref={audioRef} onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} onCanPlay={handleOnCanPlay} crossOrigin="anonymous"></audio>
                 <div className="space-y-2">
-                    {stations.map(station => (
+                    {PRESET_STATIONS.map(station => (
                         <div key={station.name} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                             <span className="font-medium text-gray-800">{station.name}</span>
-                            <button onClick={() => togglePlayPause(station)} className="w-12 h-12 flex items-center justify-center rounded-full bg-green-500 text-white hover:bg-green-600 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">
-                                {isPlaying && currentStation?.url === station.url ? (
+                            <button onClick={() => togglePlayPause(station)} className="w-12 h-12 flex items-center justify-center rounded-full bg-green-500 text-white hover:bg-green-600 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50" disabled={isLoading}>
+                                {isLoading === station.url ? (
+                                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                                ) : (isPlaying && currentStation?.url === station.url ? (
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                 ) : (
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                )}
+                                ))}
                             </button>
                         </div>
                     ))}
                 </div>
                 {currentStation && (
                     <div className="mt-6 text-center p-4 bg-green-100 border border-green-200 rounded-lg">
-                        <p className="text-sm text-green-700">Currently Playing:</p>
+                        <p className="text-sm text-green-700">{isLoading === currentStation.url ? "Connecting..." : (isPlaying ? "Currently Playing:" : "Paused")}</p>
                         <p className="font-bold text-green-800">{currentStation.name}</p>
                     </div>
                 )}
@@ -390,7 +396,7 @@ const GoogleMapComponent = ({ busLocations }) => {
       BUS_STOPS.forEach(stop => {
           const marker = new window.google.maps.Marker({ position: stop.position, map: mapInstance.current, title: stop.name, icon: { path: window.google.maps.SymbolPath.CIRCLE, scale: 7, fillColor: "#FFFFFF", fillOpacity: 1, strokeColor: "#000000", strokeWeight: 2 } });
           const infowindow = new window.google.maps.InfoWindow({ content: `<b>${stop.name}</b>` });
-          marker.addListener("click", () => infowindoow.open(mapInstance.current, marker));
+          marker.addListener("click", () => infowindow.open(mapInstance.current, marker));
       });
     }
   }, [isApiLoaded]);
