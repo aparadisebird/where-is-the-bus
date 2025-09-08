@@ -20,38 +20,48 @@ const GOOGLE_MAPS_API_KEY = "AIzaSyBZ2R4DcMPLALYrdDQkLjlc6ZbpXxm6IcQ";
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// --- Bus Schedule Data ---
+// --- Bus Schedule Data (NOW IN AM/PM FORMAT) ---
 const busSchedule = {
     weekday: { // Sunday-Thursday
-        "Campus → Bongobazar": ["06:45", "15:00", "17:00", "20:00"],
-        "Bongobazar → Campus": ["17:00", "18:00", "19:30", "20:30"]
+        "Campus → Bongobazar": ["6:45 AM", "3:00 PM", "5:00 PM", "8:00 PM"],
+        "Bongobazar → Campus": ["5:00 PM", "6:00 PM", "7:30 PM", "8:30 PM"]
     },
     weekend: { // Friday-Saturday
-        "Campus → Bongobazar": ["09:30", "16:00"],
-        "Bongobazar → Campus": ["14:15", "18:00", "19:30", "20:30"]
+        "Campus → Bongobazar": ["9:30 AM", "4:00 PM"],
+        "Bongobazar → Campus": ["2:15 PM", "6:00 PM", "7:30 PM", "8:30 PM"]
     }
 };
 
-// --- Helper to get active trips ---
+// --- Helper to get active trips (UPDATED FOR AM/PM) ---
 const getActiveTrips = () => {
     const now = new Date();
     const day = now.getDay(); // 0=Sunday, 5=Friday, 6=Saturday
-    const currentTime = now.getHours() * 60 + now.getMinutes();
+    const currentTimeInMinutes = now.getHours() * 60 + now.getMinutes();
     const isWeekend = (day === 5 || day === 6);
     const schedule = isWeekend ? busSchedule.weekend : busSchedule.weekday;
     const activeTrips = [];
 
     for (const direction in schedule) {
         schedule[direction].forEach(time => {
-            const [hours, minutes] = time.split(':').map(Number);
-            const departureTime = hours * 60 + minutes;
-            const tripEndTime = departureTime + 90; // Trip is active for 90 minutes
+            // Parse AM/PM time string
+            const [timePart, meridian] = time.split(' ');
+            let [hours, minutes] = timePart.split(':').map(Number);
 
-            if (currentTime >= departureTime && currentTime <= tripEndTime) {
-                const tripId = `${now.toISOString().split('T')[0]}_${time.replace(':', '')}_${direction.charAt(0)}`;
+            if (meridian === 'PM' && hours !== 12) {
+                hours += 12;
+            }
+            if (meridian === 'AM' && hours === 12) { // Midnight case
+                hours = 0;
+            }
+
+            const departureTimeInMinutes = hours * 60 + minutes;
+            const tripEndTimeInMinutes = departureTimeInMinutes + 90; // Trip is active for 90 minutes
+
+            if (currentTimeInMinutes >= departureTimeInMinutes && currentTimeInMinutes <= tripEndTimeInMinutes) {
+                const tripId = `${now.toISOString().split('T')[0]}_${time.replace(/[:\s]/g, '')}_${direction.charAt(0)}`;
                 activeTrips.push({
                     id: tripId,
-                    time: time,
+                    time: time, // Keep original AM/PM time for display
                     direction: direction
                 });
             }
@@ -65,6 +75,7 @@ export default function App() {
   const [activeBusLocations, setActiveBusLocations] = useState({});
   const [isSharing, setIsSharing] = useState(false);
   const [sharingTripId, setSharingTripId] = useState(null);
+  const [sharingTripTime, setSharingTripTime] = useState(''); // New state for display
   const [isAdmin, setIsAdmin] = useState(false);
   const [modal, setModal] = useState({ title: '', message: '', type: null });
   const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
@@ -105,10 +116,10 @@ export default function App() {
     const tripLocationRef = ref(db, `${ACTIVE_TRIPS_PATH}/${trip.id}`);
     setIsSharing(true);
     setSharingTripId(trip.id);
+    setSharingTripTime(trip.time); // Set display time
 
-    // NEW: Automatic 90-minute timeout
     sharingTimeout.current = setTimeout(() => {
-        stopSharingLocation(true); // Pass a flag to show a specific message
+        stopSharingLocation(true);
     }, 90 * 60 * 1000);
 
     watchId.current = navigator.geolocation.watchPosition(
@@ -139,6 +150,7 @@ export default function App() {
     sharingTimeout.current = null;
     setIsSharing(false);
     setSharingTripId(null);
+    setSharingTripTime(''); // Clear display time
     
     if (isTimeout) {
         setModal({ title: 'Sharing Stopped', message: 'Location sharing has automatically stopped after 90 minutes.', type: 'alert' });
@@ -155,14 +167,11 @@ export default function App() {
     else setModal({ title: 'Access Denied', message: 'Incorrect password.', type: 'alert' });
   };
     
-  // NEW: Admin Announcement Functions
   const handlePublishAnnouncement = () => {
-      // Prevent publishing empty announcements
       if (!announcementInput.trim()) {
           setModal({ title: 'Empty Message', message: 'Please write an announcement before publishing.', type: 'alert' });
           return;
       }
-
       const announcementRef = ref(db, ANNOUNCEMENT_PATH);
       set(announcementRef, { message: announcementInput, timestamp: Date.now() })
         .then(() => setAnnouncementInput(''))
@@ -174,7 +183,6 @@ export default function App() {
     
   const handleClearAnnouncement = () => {
       const announcementRef = ref(db, ANNOUNCEMENT_PATH);
-      // Setting an empty message is a reliable way to clear the announcement.
       set(announcementRef, { message: '', timestamp: Date.now() })
         .catch(err => {
             console.error("Announcement clear error:", err);
@@ -197,7 +205,7 @@ export default function App() {
             </div>
         )}
         <div className="w-full h-96 bg-gray-300 rounded-lg shadow-lg mb-6 relative overflow-hidden"><GoogleMapComponent busLocations={activeBusLocations} /></div>
-        <div className="bg-white p-6 rounded-lg shadow-lg text-center"><h2 className="text-xl font-semibold mb-2">Are you on the bus?</h2><p className="text-gray-600 mb-4">Click to select your trip and help others track the bus.</p><button onClick={handleShareButtonClick} className={`px-8 py-3 rounded-full font-bold text-white transition-all duration-300 transform hover:scale-105 ${isSharing ? 'bg-red-500 hover:bg-red-600' : 'bg-green-600 hover:bg-green-700'}`}>{isSharing ? `Stop Sharing (${sharingTripId ? sharingTripId.split('_')[1] : ''})` : 'Share My Location'}</button>{isSharing && <p className="text-sm text-green-600 mt-2 animate-pulse">Sharing your location live...</p>}</div>
+        <div className="bg-white p-6 rounded-lg shadow-lg text-center"><h2 className="text-xl font-semibold mb-2">Are you on the bus?</h2><p className="text-gray-600 mb-4">Click to select your trip and help others track the bus.</p><button onClick={handleShareButtonClick} className={`px-8 py-3 rounded-full font-bold text-white transition-all duration-300 transform hover:scale-105 ${isSharing ? 'bg-red-500 hover:bg-red-600' : 'bg-green-600 hover:bg-green-700'}`}>{isSharing ? `Stop Sharing (${sharingTripTime})` : 'Share My Location'}</button>{isSharing && <p className="text-sm text-green-600 mt-2 animate-pulse">Sharing your location live...</p>}</div>
         
         {isAdmin && (
              <div className="mt-6 bg-white p-6 rounded-lg shadow-lg">
@@ -303,8 +311,58 @@ const GoogleMapComponent = ({ busLocations }) => {
   return <div ref={mapDivRef} style={{ width: '100%', height: '100%' }} />;
 };
 
-// --- Modals and Data --- (No changes below this line)
-const TripSelectorModal = ({ onSelect, onClose }) => { const activeTrips = getActiveTrips(); return ( <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4"><div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-sm"><div className="flex justify-between items-center mb-4"><h3 className="text-lg font-bold">Select Your Trip</h3><button onClick={onClose} className="text-gray-500 hover:text-gray-800 text-3xl">&times;</button></div>{activeTrips.length > 0 ? ( <div className="space-y-2"><p className="text-sm text-gray-600 mb-4">Which bus are you currently on?</p>{activeTrips.map(trip => ( <button key={trip.id} onClick={() => onSelect(trip)} className="w-full text-left p-3 bg-gray-100 hover:bg-green-100 rounded-md transition-colors"><p className="font-semibold">{trip.time}</p><p className="text-sm text-gray-700">{trip.direction}</p></button> ))}</div> ) : ( <p className="text-center text-gray-700 py-4">No buses are scheduled to be running at this time.</p> )}</div></div> ); };
+// --- Modals and Data ---
+const TripSelectorModal = ({ onSelect, onClose }) => { 
+    const activeTrips = getActiveTrips(); 
+    return ( 
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+                <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-bold">Select Your Trip</h3>
+                    <button onClick={onClose} className="text-gray-500 hover:text-gray-800 text-3xl">&times;</button>
+                </div>
+                {activeTrips.length > 0 ? ( 
+                    <div className="space-y-2">
+                        <p className="text-sm text-gray-600 mb-4">Which bus are you currently on?</p>
+                        {activeTrips.map(trip => ( 
+                            <button key={trip.id} onClick={() => onSelect(trip)} className="w-full text-left p-3 bg-gray-100 hover:bg-green-100 rounded-md transition-colors">
+                                <p className="font-semibold">{trip.time}</p>
+                                <p className="text-sm text-gray-700">{trip.direction}</p>
+                            </button> 
+                        ))}
+                    </div> 
+                ) : ( 
+                    <div>
+                        <p className="text-center text-gray-700 py-4 font-medium">No buses are scheduled to be running right now.</p>
+                        <p className="text-center text-xs text-gray-500 -mt-3 pb-4">You can only share your location during active times according to the schedule below.</p>
+                        <hr className="my-2 border-gray-200" />
+                        <div className="text-left text-sm mt-4">
+                            <h4 className="font-bold text-center mb-3 text-gray-800">Full Schedule</h4>
+                            <div className="mb-3">
+                                <h5 className="font-semibold text-gray-700">Sunday - Thursday</h5>
+                                {Object.entries(busSchedule.weekday).map(([direction, times]) => (
+                                    <div key={direction} className="mt-1">
+                                        <p className="font-medium text-gray-600">{direction}</p>
+                                        <p className="text-xs text-gray-500">{times.join(' | ')}</p>
+                                    </div>
+                                ))}
+                            </div>
+                            <div>
+                                <h5 className="font-semibold text-gray-700">Friday - Saturday</h5>
+                                {Object.entries(busSchedule.weekend).map(([direction, times]) => (
+                                    <div key={direction} className="mt-1">
+                                        <p className="font-medium text-gray-600">{direction}</p>
+                                        <p className="text-xs text-gray-500">{times.join(' | ')}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+        </div> 
+    ); 
+};
 const ScheduleModal = ({ onClose }) => ( <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={onClose}><div className="bg-white rounded-lg shadow-xl w-full max-w-lg relative" onClick={(e) => e.stopPropagation()}><div className="p-4 border-b flex justify-between items-center"><h2 className="text-xl font-bold">JU Bus Schedule</h2><button onClick={onClose} className="text-gray-500 hover:text-gray-800 text-3xl">&times;</button></div><div className="p-4" style={{ maxHeight: '80vh', overflowY: 'auto' }}><img src="https://i.postimg.cc/DwsrfQTt/image.png" alt="JU Bus Schedule" className="w-full h-auto"/></div></div></div> );
 const Modal = ({ modalConfig, closeModal }) => { const { title, message, type, onConfirm } = modalConfig; if (!type) return null; const handleConfirm = () => { if (onConfirm) onConfirm(); closeModal(); }; return ( <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4"><div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-sm text-center"><h3 className="text-xl font-bold mb-4">{title}</h3><p className="text-gray-700 mb-6">{message}</p><div className={`flex ${type === 'confirm' ? 'justify-between' : 'justify-center'} space-x-4`}>{type === 'confirm' && ( <button onClick={closeModal} className="px-6 py-2 rounded bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold">Cancel</button> )}<button onClick={handleConfirm} className="px-6 py-2 rounded text-white font-semibold bg-blue-500 hover:bg-blue-600">{type === 'confirm' ? "Confirm" : "OK"}</button></div></div></div> ); };
 const PasswordPrompt = ({ onConfirm, onCancel }) => { const [password, setPassword] = useState(''); const inputRef = useRef(null); useEffect(() => inputRef.current?.focus(), []); const handleSubmit = (e) => { e.preventDefault(); onConfirm(password); }; return ( <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4"><form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-xl p-6 w-full max-w-sm"><h3 className="text-lg font-bold mb-4">Admin Access</h3><input ref={inputRef} type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter password"/><div className="flex justify-end space-x-4 mt-6"><button type="button" onClick={onCancel} className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold">Cancel</button><button type="submit" className="px-4 py-2 rounded bg-blue-500 hover:bg-blue-600 text-white font-semibold">Enter</button></div></form></div> ); };
