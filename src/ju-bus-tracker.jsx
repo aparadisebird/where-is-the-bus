@@ -293,11 +293,11 @@ const ContactPage = () => (
 const RadioPage = ({ setModal }) => {
     const LOCAL_STATIONS = [
         { name: "Radio Foorti 88.0 FM", url: "https://stream.zeno.fm/g27wrm2kttzuv" },
-        { name: "ABC Radio 89.2 FM", url: "https://stream.zeno.fm/gfts02123qruv" },
+        { name: "Bangladesh Betar", url: "https://stream.zeno.fm/anekc138s88uv" },
     ];
     
     const MUSIC_STATIONS = [
-        { name: "Radio Mirchi 98.3 (India)", url: "https://stream.zeno.fm/y756wns5xzquv" },
+        { name: "Radio City Hindi (India)", url: "https://stream.zeno.fm/t31bsy2y1ceuv" },
     ];
 
     const INTERNATIONAL_STATIONS = [
