@@ -4,17 +4,17 @@ import { getDatabase, ref, onValue, set, remove } from 'firebase/database';
 
 // --- Firebase Configuration ---
 const firebaseConfig = {
-  apiKey: "AIzaSyA2q8VjveB5gWgk-31GSPi2gWbylqm0rV8",
-  authDomain: "ju-bus-db4b4.firebaseapp.com",
-  databaseURL: "https://ju-bus-db4b4-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "ju-bus-db4b4",
-  storageBucket: "ju-bus-db4b4.appspot.com",
-  messagingSenderId: "1071735242909",
-  appId: "1:1071735242909:web:f2b222a91b1c38ba37d474"
+  apiKey: "AIzaSyCDKuWMo7gg9auLWODnM8oO2ygEyaLGLkU",
+  authDomain: "ju-bus-tracker-5f5b6.firebaseapp.com",
+  databaseURL: "https://ju-bus-tracker-5f5b6-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "ju-bus-tracker-5f5b6",
+  storageBucket: "ju-bus-tracker-5f5b6.appspot.com",
+  messagingSenderId: "2844986643",
+  appId: "1:2844986643:web:1e3aca7110879527011ee6"
 };
 
 // --- Google Maps API Key ---
-const GOOGLE_MAPS_API_KEY = "AIzaSyD-Uw_5GesPQhMfzdm_YhlVx7sDG218Y-c";
+const GOOGLE_MAPS_API_KEY = "AIzaSyBZ2R4DcMPLALYrdDQkLjlc6ZbpXxm6IcQ";
 
 // --- Initialize Firebase ---
 const app = initializeApp(firebaseConfig);
@@ -173,7 +173,13 @@ export default function App() {
   };
     
   const handleClearAnnouncement = () => {
-      remove(ref(db, ANNOUNCEMENT_PATH));
+      const announcementRef = ref(db, ANNOUNCEMENT_PATH);
+      // Setting an empty message is a reliable way to clear the announcement.
+      set(announcementRef, { message: '', timestamp: Date.now() })
+        .catch(err => {
+            console.error("Announcement clear error:", err);
+            setModal({ title: 'Error', message: 'Could not clear the announcement.', type: 'alert' });
+        });
   };
 
   return (
@@ -184,7 +190,7 @@ export default function App() {
       </header>
       
       <main className="w-full max-w-4xl p-4 flex-grow">
-        {announcement && (
+        {announcement && announcement.trim() !== '' && (
             <div className="bg-yellow-200 border-l-4 border-yellow-500 text-yellow-800 p-4 mb-4 rounded-lg shadow-md" role="alert">
                 <p className="font-bold">Announcement</p>
                 <p>{announcement}</p>
