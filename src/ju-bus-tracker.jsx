@@ -287,11 +287,22 @@ const GoogleMapComponent = ({ busLocations }) => {
                 delete markers.current[tripId];
             }
         }
+
+        let latestBus = null;
+        let latestTimestamp = 0;
+
         // Add/update markers for active buses
         for (const tripId in busLocations) {
             const bus = busLocations[tripId];
+            if (!bus.location || !bus.location.timestamp) continue; 
+
             // Ignore if location is stale (more than 5 minutes old)
             if (Date.now() - bus.location.timestamp > 5 * 60 * 1000) continue;
+            
+            if (bus.location.timestamp > latestTimestamp) {
+                latestTimestamp = bus.location.timestamp;
+                latestBus = bus;
+            }
 
             const position = { lat: bus.location.lat, lng: bus.location.lng };
             const infoContent = `<b>${bus.time} Trip</b><br>${bus.direction}`;
@@ -309,6 +320,12 @@ const GoogleMapComponent = ({ busLocations }) => {
                 marker.addListener("click", () => infowindow.open(mapInstance.current, marker));
                 markers.current[tripId] = { marker, infowindow };
             }
+        }
+        
+        // Pan the map to the latest bus location
+        if (latestBus) {
+            const latestPosition = { lat: latestBus.location.lat, lng: latestBus.location.lng };
+            mapInstance.current.panTo(latestPosition);
         }
     }
 }, [busLocations, isApiLoaded]);
