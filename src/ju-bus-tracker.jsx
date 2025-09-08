@@ -207,7 +207,6 @@ export default function App() {
               <div className="w-full max-w-4xl mx-auto p-4">
                   {currentPage === 'how-to-use' && <HowToUsePage />}
                   {currentPage === 'about' && <AboutPage />}
-                  {currentPage === 'contact' && <ContactPage />}
                   {currentPage === 'hear-radio' && <RadioPage setModal={setModal} />} 
                   {currentPage === 'text-schedule' && <TextSchedulePage />}
               </div>
@@ -245,14 +244,52 @@ const NavigationMenu = ({ showNavMenu, setShowNavMenu, setCurrentPage }) => {
         setShowNavMenu(false);
     };
     return (
-        <><div className={`fixed inset-0 bg-black/60 z-40 transition-opacity ${showNavMenu ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} onClick={() => setShowNavMenu(false)}></div><div className={`fixed top-0 left-0 h-full w-64 bg-white shadow-lg z-50 transform transition-transform ${showNavMenu ? 'translate-x-0' : '-translate-x-full'}`}><div className="p-4 border-b"><h2 className="text-xl font-bold text-green-700">Menu</h2></div><nav className="p-4 flex flex-col space-y-2"><button onClick={() => navigate('text-schedule')} className="text-left p-2 rounded hover:bg-gray-100 transition-colors">Text Schedule</button><button onClick={() => navigate('how-to-use')} className="text-left p-2 rounded hover:bg-gray-100 transition-colors">How to Use</button><button onClick={() => navigate('about')} className="text-left p-2 rounded hover:bg-gray-100 transition-colors">About This Project</button><button onClick={() => navigate('contact')} className="text-left p-2 rounded hover:bg-gray-100 transition-colors">Contact</button></nav></div></>
+        <><div className={`fixed inset-0 bg-black/60 z-40 transition-opacity ${showNavMenu ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} onClick={() => setShowNavMenu(false)}></div><div className={`fixed top-0 left-0 h-full w-64 bg-white shadow-lg z-50 transform transition-transform ${showNavMenu ? 'translate-x-0' : '-translate-x-full'}`}><div className="p-4 border-b"><h2 className="text-xl font-bold text-green-700">Menu</h2></div><nav className="p-4 flex flex-col space-y-2"><button onClick={() => navigate('text-schedule')} className="text-left p-2 rounded hover:bg-gray-100 transition-colors">Text Schedule</button><button onClick={() => navigate('how-to-use')} className="text-left p-2 rounded hover:bg-gray-100 transition-colors">How to Use</button><button onClick={() => navigate('about')} className="text-left p-2 rounded hover:bg-gray-100 transition-colors">About This Project</button></nav></div></>
     );
 };
 
 const PageCard = ({ title, children }) => (<div className="bg-white p-6 rounded-lg shadow-lg animate-fade-in"><h2 className="text-2xl font-bold mb-4 text-gray-800 border-b pb-2">{title}</h2><div className="text-gray-700 space-y-4">{children}</div></div>);
-const HowToUsePage = () => (<PageCard title="How to Use"><p>This tool is designed to be simple. Here’s how it works:</p><ul className="list-decimal list-inside space-y-2 pl-4"><li><b>View the Map:</b> The main page shows a live map with the current location of active buses.</li><li><b>Share Your Location:</b> If you are on a bus, click the "Share My Location" button. This helps everyone see where the bus is.</li><li><b>Check the Schedule:</b> Click the "Schedule" button in the top-right corner to see all departure times.</li><li><b>Listen to Radio:</b> Click the "Radio" button in the top-right to listen to live FM stations.</li></ul></PageCard>);
-const AboutPage = () => (<PageCard title="About This Project"><p>This project was created to solve a simple problem for the students of Jahangirnagar University: the frustration of not knowing when the next bus will arrive.</p><p>By using crowdsourced, real-time location data, this tool aims to make the campus transportation system more predictable and less stressful for everyone.</p><p><b>Your Name Here:</b> Feel free to add a paragraph about yourself, your department, and your motivation for building this amazing tool!</p></PageCard>);
-const ContactPage = () => (<PageCard title="Contact"><p>Have questions, suggestions, or want to contribute to this project? Get in touch!</p><p>Please replace the placeholder text below with your actual contact information.</p><ul className="list-disc list-inside space-y-2 pl-4"><li><b>Email:</b> your.email@example.com</li><li><b>LinkedIn:</b> linkedin.com/in/yourprofile</li><li><b>GitHub:</b> github.com/yourusername</li></ul></PageCard>);
+
+const HowToUsePage = () => (
+    <PageCard title="How to Use This App">
+        <p>Welcome to the JU Bus Tracker! This guide explains all the features to help you with your daily commute.</p>
+        <h3 className="text-lg font-semibold mt-4 text-gray-800">1. Viewing the Live Map</h3>
+        <p>The "Live Map" page is the heart of the app. It shows the Campus to Bongobazar route and any active bus will appear as a yellow bus icon. The map will automatically follow the most recently updated bus.</p>
+        <h3 className="text-lg font-semibold mt-4 text-gray-800">2. Sharing Your Location (The Smart Way)</h3>
+        <p>This is a community-powered app. To make it work, students on the bus share their location. Here’s how the logic works:</p>
+        <ul className="list-disc list-inside space-y-2 pl-4">
+            <li><b>Important:</b> Only share your location if you are actually on a university bus. You will be asked to confirm this.</li>
+            <li>Sharing is only possible during scheduled trips (from departure time up to 90 minutes after). If no bus is scheduled, you cannot share a location. This keeps the map accurate.</li>
+            <li>To start, click the main **"Share My Location"** button, confirm you're on the bus, and select the correct trip from the list.</li>
+            <li>Your sharing automatically stops after 90 minutes to prevent "stuck" buses on the map. You can also stop it manually at any time.</li>
+        </ul>
+        <h3 className="text-lg font-semibold mt-4 text-gray-800">3. Checking Schedules</h3>
+        <p>There are two convenient ways to see the bus schedule:</p>
+        <ul className="list-disc list-inside space-y-2 pl-4">
+            <li>Click the **"Schedule"** button in the header for the official image-based schedule.</li>
+            <li>Open the side menu (☰) and click **"Text Schedule"** for a clean, text-based version.</li>
+        </ul>
+        <h3 className="text-lg font-semibold mt-4 text-gray-800">4. Extra Features</h3>
+        <ul className="list-disc list-inside space-y-2 pl-4">
+            <li><b>Admin Announcements:</b> A yellow banner may appear at the top of the map with important updates like delays or cancellations.</li>
+            <li><b>Hear Radio:</b> Click the **"Radio"** button in the header to listen to live news and music stations during your commute.</li>
+        </ul>
+    </PageCard>
+);
+
+const AboutPage = () => (
+    <PageCard title="About This Project">
+        <p>This is a conceptual project, born from a desire to provide a simple solution to the long-standing problem of bus tracking for the students of Jahangirnagar University.</p>
+        <p>As a student from a non-IT background, my journey into coding has always been driven by a keen interest in solving real-world problems. This application was built using my foundational knowledge of web development, significantly accelerated with the help of AI tools.</p>
+        <p>My hope is that this project serves as more than just a utility; I hope it inspires the JU authority to develop a centralized, official bus tracking system for the benefit of all students. This is a proof of concept for what's possible.</p>
+        <div className="mt-6 pt-4 border-t">
+            <p className="font-semibold">Yours Sincerely,</p>
+            <p>SHIFAT SHAHRIAR SIAM</p>
+            <p className="text-sm text-gray-600">Department of Public Health and Informatics</p>
+            <p className="text-sm text-gray-600">Session: 2020-21</p>
+        </div>
+    </PageCard>
+);
 
 const TextSchedulePage = () => (
     <PageCard title="Bus Schedule">
@@ -301,6 +338,7 @@ const GoogleMapComponent = ({ busLocations }) => {
   const [isApiLoaded, setApiLoaded] = useState(false);
   const markers = useRef({});
   const mapInstance = useRef(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const handleFullScreen = () => {
     if (!document.fullscreenElement) {
@@ -313,21 +351,25 @@ const GoogleMapComponent = ({ busLocations }) => {
   };
 
   useEffect(() => {
+    const handleFullscreenChange = () => {
+        setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
+  useEffect(() => {
     if (window.google && window.google.maps) { setApiLoaded(true); return; }
     if (document.getElementById('google-maps-script')) { setApiLoaded(true); return; }
     
     window.initMap = () => setApiLoaded(true);
-
     const script = document.createElement('script');
     script.id = 'google-maps-script';
     script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&callback=initMap`;
     script.async = true;
     script.defer = true;
     document.head.appendChild(script);
-
-    return () => {
-        delete window.initMap;
-    }
+    return () => { delete window.initMap; }
   }, []);
 
   useEffect(() => {
@@ -393,8 +435,12 @@ const GoogleMapComponent = ({ busLocations }) => {
             {!isApiLoaded && (<div className="absolute inset-0 flex items-center justify-center bg-gray-300 z-20"><p>Loading Map...</p></div>)}
         </div>
         <button onClick={handleFullScreen} className="absolute top-2 right-2 z-10 bg-white/80 p-2 rounded-md shadow-lg hover:bg-white transition-transform duration-200 hover:scale-110" aria-label="Toggle fullscreen">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 0h-4m4 0l-5-5" />
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-700" fill="currentColor" viewBox="0 0 24 24">
+                {isFullscreen ? (
+                    <path d="M5.414 17H8a1 1 0 0 1 0 2H3a1 1 0 0 1-1-1v-5a1 1 0 0 1 2 0v2.586l4.293-4.293a1 1 0 0 1 1.414 1.414L5.414 17zM18.586 7H16a1 1 0 0 1 0-2h5a1 1 0 0 1 1 1v5a1 1 0 0 1-2 0V5.414l-4.293 4.293a1 1 0 0 1-1.414-1.414L18.586 7z"/>
+                ) : (
+                    <path d="M20,19.2928932 L20,16.5 C20,16.2238576 20.2238576,16 20.5,16 C20.7761424,16 21,16.2238576 21,16.5 L21,20.5 C21,20.7761424 20.7761424,21 20.5,21 L16.5,21 C16.2238576,21 16,20.7761424 16,20.5 C16,20.2238576 16.2238576,20 16.5,20 L19.2928932,20 L14.1464466,14.8535534 C13.9511845,14.6582912 13.9511845,14.3417088 14.1464466,14.1464466 C14.3417088,13.9511845 14.6582912,13.9511845 14.8535534,14.1464466 L20,19.2928932 Z M4,4.70710678 L4,7.5 C4,7.77614237 3.77614237,8 3.5,8 C3.22385763,8 3,7.77614237 3,7.5 L3,3.5 C3,3.22385763 3.22385763,3 3.5,3 L7.5,3 C7.77614237,3 8,3.22385763 8,3.5 C8,3.77614237 7.77614237,4 7.5,4 L4.70710678,4 L9.85355339,9.14644661 C10.0488155,9.34170876 10.0488155,9.65829124 9.85355339,9.85355339 C9.65829124,10.0488155 9.34170876,10.0488155 9.14644661,9.85355339 L4,4.70710678 Z M4.70710678,20 L7.5,20 C7.77614237,20 8,20.2238576 8,20.5 C8,20.7761424 7.77614237,21 7.5,21 L3.5,21 C3.22385763,21 3,20.7761424 3,20.5 L3,16.5 C3,16.2238576 3.22385763,16 3.5,16 C3.77614237,16 4,16.2238576 4,16.5 L4,19.2928932 L9.14644661,14.1464466 C9.34170876,13.9511845 9.65829124,13.9511845 9.85355339,14.1464466 C10.0488155,14.3417088 10.0488155,14.6582912 9.85355339,14.8535534 L4.70710678,20 Z M19.2928932,4 L16.5,4 C16.2238576,4 16,3.77614237 16,3.5 C16,3.22385763 16.2238576,3 16.5,3 L20.5,3 C20.7761424,3 21,3.22385763 21,3.5 L21,7.53112887 C21,7.80727125 20.7761424,8.03112887 20.5,8.03112887 C20.2238576,8.03112887 20,7.80727125 20,7.53112887 L20,4.70710678 L14.8535534,9.85355339 C14.6582912,10.0488155 14.3417088,10.0488155 14.1464466,9.85355339 C13.9511845,9.65829124 13.9511845,9.34170876 14.1464466,9.14644661 L19.2928932,4 L19.2928932,4 Z"/>
+                )}
             </svg>
         </button>
     </div>
