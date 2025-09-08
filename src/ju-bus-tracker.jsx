@@ -34,37 +34,22 @@ const busSchedule = {
 
 // --- Helper to get active trips (UPDATED FOR AM/PM) ---
 const getActiveTrips = () => {
+    // --- FOR TESTING: This function is temporarily modified to show all trips for the current day regardless of the current time. ---
+    // --- To restore normal schedule-based functionality, revert to the previous version of this function. ---
     const now = new Date();
     const day = now.getDay(); // 0=Sunday, 5=Friday, 6=Saturday
-    const currentTimeInMinutes = now.getHours() * 60 + now.getMinutes();
     const isWeekend = (day === 5 || day === 6);
     const schedule = isWeekend ? busSchedule.weekend : busSchedule.weekday;
     const activeTrips = [];
 
     for (const direction in schedule) {
         schedule[direction].forEach(time => {
-            // Parse AM/PM time string
-            const [timePart, meridian] = time.split(' ');
-            let [hours, minutes] = timePart.split(':').map(Number);
-
-            if (meridian === 'PM' && hours !== 12) {
-                hours += 12;
-            }
-            if (meridian === 'AM' && hours === 12) { // Midnight case
-                hours = 0;
-            }
-
-            const departureTimeInMinutes = hours * 60 + minutes;
-            const tripEndTimeInMinutes = departureTimeInMinutes + 90; // Trip is active for 90 minutes
-
-            if (currentTimeInMinutes >= departureTimeInMinutes && currentTimeInMinutes <= tripEndTimeInMinutes) {
-                const tripId = `${now.toISOString().split('T')[0]}_${time.replace(/[:\s]/g, '')}_${direction.charAt(0)}`;
-                activeTrips.push({
-                    id: tripId,
-                    time: time, // Keep original AM/PM time for display
-                    direction: direction
-                });
-            }
+            const tripId = `${now.toISOString().split('T')[0]}_${time.replace(/[:\s]/g, '')}_${direction.charAt(0)}`;
+            activeTrips.push({
+                id: tripId,
+                time: time, // Keep original AM/PM time for display
+                direction: direction
+            });
         });
     }
     return activeTrips;
@@ -128,10 +113,15 @@ export default function App() {
         set(tripLocationRef, {
             ...trip,
             location: { lat: latitude, lng: longitude, timestamp: Date.now() }
+        }).catch(error => { // --- IMPROVEMENT: Catch errors if Firebase write fails ---
+            console.error("Firebase write error:", error);
+            setModal({ title: 'Database Error', message: 'Could not save location to the database.', type: 'alert'});
+            stopSharingLocation();
         });
       },
       (error) => {
         console.error("Geolocation Error:", error);
+        setModal({ title: 'Location Error', message: "Could not get your location. Please ensure you've enabled location services in your browser and device.", type: 'alert' });
         stopSharingLocation();
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
