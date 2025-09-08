@@ -159,7 +159,8 @@ export default function App() {
         <div className="flex items-center space-x-1 sm:space-x-2">
             <button onClick={() => setCurrentPage('map')} className="bg-white/20 hover:bg-white/30 text-white font-bold py-2 px-2 sm:px-4 rounded-lg flex items-center transition-colors text-sm">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l5.447 2.724A1 1 0 0021 16.382V5.618a1 1 0 00-1.447-.894L15 7m0 10V7m0 0L9 4" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
                 <span className="hidden sm:inline">Map</span>
             </button>
@@ -361,7 +362,9 @@ const GoogleMapComponent = ({ busLocations }) => {
             {!isApiLoaded && (<div className="absolute inset-0 flex items-center justify-center bg-gray-300 z-20"><p>Loading Map...</p></div>)}
         </div>
         <button onClick={handleFullScreen} className="absolute top-2 right-2 z-10 bg-white/80 p-2 rounded-md shadow-lg hover:bg-white transition-transform duration-200 hover:scale-110" aria-label="Toggle fullscreen">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 0h-4m4 0l-5-5" /></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 0h-4m4 0l-5-5" />
+            </svg>
         </button>
     </div>
   );
