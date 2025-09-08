@@ -10,7 +10,7 @@ const firebaseConfig = {
   projectId: "ju-bus-tracker-5f5b6",
   storageBucket: "ju-bus-tracker-5f5b6.appspot.com",
   messagingSenderId: "2844986643",
-  appId: "1:2844986643:web:1e3aca7110879527011ee6"
+  appId: "1:2844986643:web:1e3aca7110879s527011ee6"
 };
 
 // --- Google Maps API Key ---
@@ -294,13 +294,15 @@ const RadioPage = ({ setModal }) => {
     const LOCAL_STATIONS = [
         { name: "Radio Foorti 88.0 FM", url: "https://stream.zeno.fm/g27wrm2kttzuv" },
         { name: "ABC Radio 89.2 FM", url: "https://stream.zeno.fm/gfts02123qruv" },
-        { name: "Dhaka FM 90.4", url: "https://stream.zeno.fm/q55k53r92wzuv" },
     ];
     
+    const MUSIC_STATIONS = [
+        { name: "Radio Mirchi 98.3 (India)", url: "https://stream.zeno.fm/y756wns5xzquv" },
+    ];
+
     const INTERNATIONAL_STATIONS = [
         { name: "NPR News (USA)", url: "https://npr-ice.streamguys1.com/live.mp3" },
         { name: "BBC World Service (UK/Global)", url: "https://stream.live.vc.bbcmedia.co.uk/bbc_world_service" },
-        { name: "Bloomberg Radio (USA)", url: "https://bloomberg.streamguys1.com/bloomberg_us.mp3" },
     ];
     
     const [currentStation, setCurrentStation] = useState(null);
@@ -335,6 +337,19 @@ const RadioPage = ({ setModal }) => {
         setIsPlaying(true);
     };
     
+    const StationList = ({ stations }) => (
+        <div className="space-y-2">
+            {stations.map(station => (
+                <div key={station.name} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <span className="font-medium text-gray-800">{station.name}</span>
+                    <button onClick={() => togglePlayPause(station)} className="w-12 h-12 flex items-center justify-center rounded-full bg-green-500 text-white hover:bg-green-600 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50" disabled={isLoading}>
+                        {isLoading === station.url ? ( <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div> ) : (isPlaying && currentStation?.url === station.url ? ( <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> ) : ( <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> ))}
+                    </button>
+                </div>
+            ))}
+        </div>
+    );
+
     return (
         <PageCard title="Hear Radio">
             <p>Listen to live radio stations from Bangladesh and around the world.</p>
@@ -342,29 +357,14 @@ const RadioPage = ({ setModal }) => {
                 <audio ref={audioRef} onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} onCanPlay={handleOnCanPlay} crossOrigin="anonymous"></audio>
                 
                 <h3 className="text-lg font-semibold text-gray-700 mt-6 mb-2">Local Stations (BD)</h3>
-                <div className="space-y-2">
-                    {LOCAL_STATIONS.map(station => (
-                        <div key={station.name} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                            <span className="font-medium text-gray-800">{station.name}</span>
-                            <button onClick={() => togglePlayPause(station)} className="w-12 h-12 flex items-center justify-center rounded-full bg-green-500 text-white hover:bg-green-600 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50" disabled={isLoading}>
-                                {isLoading === station.url ? ( <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div> ) : (isPlaying && currentStation?.url === station.url ? ( <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> ) : ( <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> ))}
-                            </button>
-                        </div>
-                    ))}
-                </div>
+                <StationList stations={LOCAL_STATIONS} />
+
+                <h3 className="text-lg font-semibold text-gray-700 mt-8 mb-2">Music (India)</h3>
+                <StationList stations={MUSIC_STATIONS} />
 
                 <h3 className="text-lg font-semibold text-gray-700 mt-8 mb-2">International News</h3>
-                <div className="space-y-2">
-                     {INTERNATIONAL_STATIONS.map(station => (
-                        <div key={station.name} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                            <span className="font-medium text-gray-800">{station.name}</span>
-                            <button onClick={() => togglePlayPause(station)} className="w-12 h-12 flex items-center justify-center rounded-full bg-green-500 text-white hover:bg-green-600 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50" disabled={isLoading}>
-                                {isLoading === station.url ? ( <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div> ) : (isPlaying && currentStation?.url === station.url ? ( <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> ) : ( <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> ))}
-                            </button>
-                        </div>
-                    ))}
-                </div>
-
+                <StationList stations={INTERNATIONAL_STATIONS} />
+                
                 {currentStation && (
                     <div className="mt-6 text-center p-4 bg-green-100 border border-green-200 rounded-lg">
                         <p className="text-sm text-green-700">{isLoading === currentStation.url ? "Connecting..." : (isPlaying ? "Currently Playing:" : "Paused")}</p>
