@@ -147,7 +147,19 @@ export default function App() {
     }
   };
 
-  const handleShareButtonClick = () => isSharing ? stopSharingLocation() : setShowTripSelector(true);
+  const handleShareButtonClick = () => {
+    if (isSharing) {
+        stopSharingLocation();
+    } else {
+        // --- NEW: Confirmation modal before sharing ---
+        setModal({
+            title: 'Are you on the bus?',
+            message: "To keep the map accurate for everyone, please only share your location if you are currently on a university bus. Thank you for helping!",
+            type: 'confirm',
+            onConfirm: () => setShowTripSelector(true)
+        });
+    }
+  };
   
   const handleResetLocation = () => setModal({ title: 'Confirm Reset', message: 'Are you sure you want to clear ALL active bus locations?', type: 'confirm', onConfirm: () => remove(ref(db, ACTIVE_TRIPS_PATH)).then(() => setModal({ title: 'Success', message: 'All locations cleared.', type: 'alert' }))});
   const toggleAdminView = () => isAdmin ? setIsAdmin(false) : setShowPasswordPrompt(true);
@@ -195,7 +207,12 @@ export default function App() {
             </div>
         )}
         <div className="w-full h-96 bg-gray-300 rounded-lg shadow-lg mb-6 relative overflow-hidden"><GoogleMapComponent busLocations={activeBusLocations} /></div>
-        <div className="bg-white p-6 rounded-lg shadow-lg text-center"><h2 className="text-xl font-semibold mb-2">Are you on the bus?</h2><p className="text-gray-600 mb-4">Click to select your trip and help others track the bus.</p><button onClick={handleShareButtonClick} className={`px-8 py-3 rounded-full font-bold text-white transition-all duration-300 transform hover:scale-105 ${isSharing ? 'bg-red-500 hover:bg-red-600' : 'bg-green-600 hover:bg-green-700'}`}>{isSharing ? `Stop Sharing (${sharingTripTime})` : 'Share My Location'}</button>{isSharing && <p className="text-sm text-green-600 mt-2 animate-pulse">Sharing your location live...</p>}</div>
+        <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+            <h2 className="text-xl font-semibold mb-2">Are you on the bus?</h2>
+            <p className="text-gray-600 mb-4">Help fellow students by sharing the bus's location.</p>
+            <button onClick={handleShareButtonClick} className={`px-8 py-3 rounded-full font-bold text-white transition-all duration-300 transform hover:scale-105 ${isSharing ? 'bg-red-500 hover:bg-red-600' : 'bg-green-600 hover:bg-green-700'}`}>{isSharing ? `Stop Sharing (${sharingTripTime})` : 'Share My Location'}</button>
+            {isSharing && <p className="text-sm text-green-600 mt-2 animate-pulse">Sharing your location live...</p>}
+        </div>
         
         {isAdmin && (
              <div className="mt-6 bg-white p-6 rounded-lg shadow-lg">
