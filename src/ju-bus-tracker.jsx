@@ -209,6 +209,7 @@ export default function App() {
                   {currentPage === 'about' && <AboutPage />}
                   {currentPage === 'contact' && <ContactPage />}
                   {currentPage === 'hear-radio' && <RadioPage setModal={setModal} />} 
+                  {currentPage === 'text-schedule' && <TextSchedulePage />}
               </div>
           )}
           
@@ -244,7 +245,7 @@ const NavigationMenu = ({ showNavMenu, setShowNavMenu, setCurrentPage }) => {
         setShowNavMenu(false);
     };
     return (
-        <><div className={`fixed inset-0 bg-black/60 z-40 transition-opacity ${showNavMenu ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} onClick={() => setShowNavMenu(false)}></div><div className={`fixed top-0 left-0 h-full w-64 bg-white shadow-lg z-50 transform transition-transform ${showNavMenu ? 'translate-x-0' : '-translate-x-full'}`}><div className="p-4 border-b"><h2 className="text-xl font-bold text-green-700">Menu</h2></div><nav className="p-4 flex flex-col space-y-2"><button onClick={() => navigate('how-to-use')} className="text-left p-2 rounded hover:bg-gray-100 transition-colors">How to Use</button><button onClick={() => navigate('about')} className="text-left p-2 rounded hover:bg-gray-100 transition-colors">About This Project</button><button onClick={() => navigate('contact')} className="text-left p-2 rounded hover:bg-gray-100 transition-colors">Contact</button></nav></div></>
+        <><div className={`fixed inset-0 bg-black/60 z-40 transition-opacity ${showNavMenu ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} onClick={() => setShowNavMenu(false)}></div><div className={`fixed top-0 left-0 h-full w-64 bg-white shadow-lg z-50 transform transition-transform ${showNavMenu ? 'translate-x-0' : '-translate-x-full'}`}><div className="p-4 border-b"><h2 className="text-xl font-bold text-green-700">Menu</h2></div><nav className="p-4 flex flex-col space-y-2"><button onClick={() => navigate('text-schedule')} className="text-left p-2 rounded hover:bg-gray-100 transition-colors">Text Schedule</button><button onClick={() => navigate('how-to-use')} className="text-left p-2 rounded hover:bg-gray-100 transition-colors">How to Use</button><button onClick={() => navigate('about')} className="text-left p-2 rounded hover:bg-gray-100 transition-colors">About This Project</button><button onClick={() => navigate('contact')} className="text-left p-2 rounded hover:bg-gray-100 transition-colors">Contact</button></nav></div></>
     );
 };
 
@@ -252,6 +253,36 @@ const PageCard = ({ title, children }) => (<div className="bg-white p-6 rounded-
 const HowToUsePage = () => (<PageCard title="How to Use"><p>This tool is designed to be simple. Here’s how it works:</p><ul className="list-decimal list-inside space-y-2 pl-4"><li><b>View the Map:</b> The main page shows a live map with the current location of active buses.</li><li><b>Share Your Location:</b> If you are on a bus, click the "Share My Location" button. This helps everyone see where the bus is.</li><li><b>Check the Schedule:</b> Click the "Schedule" button in the top-right corner to see all departure times.</li><li><b>Listen to Radio:</b> Click the "Radio" button in the top-right to listen to live FM stations.</li></ul></PageCard>);
 const AboutPage = () => (<PageCard title="About This Project"><p>This project was created to solve a simple problem for the students of Jahangirnagar University: the frustration of not knowing when the next bus will arrive.</p><p>By using crowdsourced, real-time location data, this tool aims to make the campus transportation system more predictable and less stressful for everyone.</p><p><b>Your Name Here:</b> Feel free to add a paragraph about yourself, your department, and your motivation for building this amazing tool!</p></PageCard>);
 const ContactPage = () => (<PageCard title="Contact"><p>Have questions, suggestions, or want to contribute to this project? Get in touch!</p><p>Please replace the placeholder text below with your actual contact information.</p><ul className="list-disc list-inside space-y-2 pl-4"><li><b>Email:</b> your.email@example.com</li><li><b>LinkedIn:</b> linkedin.com/in/yourprofile</li><li><b>GitHub:</b> github.com/yourusername</li></ul></PageCard>);
+
+const TextSchedulePage = () => (
+    <PageCard title="Bus Schedule">
+        <div className="space-y-6">
+            <div>
+                <h3 className="text-xl font-bold text-gray-800 mb-3">Sunday - Thursday</h3>
+                <div className="space-y-4">
+                    {Object.entries(busSchedule.weekday).map(([direction, times]) => (
+                        <div key={direction}>
+                            <p className="font-semibold text-green-700">{direction}</p>
+                            <p className="text-gray-600 pl-2">{times.join(' | ')}</p>
+                        </div>
+                    ))}
+                </div>
+            </div>
+            <hr />
+            <div>
+                <h3 className="text-xl font-bold text-gray-800 mb-3">Friday - Saturday</h3>
+                <div className="space-y-4">
+                     {Object.entries(busSchedule.weekend).map(([direction, times]) => (
+                        <div key={direction}>
+                            <p className="font-semibold text-green-700">{direction}</p>
+                            <p className="text-gray-600 pl-2">{times.join(' | ')}</p>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    </PageCard>
+);
 
 const RadioPage = ({ setModal }) => {
     const INTERNATIONAL_NEWS_STATIONS = [{ name: "NPR News (USA)", url: "https://npr-ice.streamguys1.com/live.mp3" }, { name: "BBC World Service (UK/Global)", url: "https://stream.live.vc.bbcmedia.co.uk/bbc_world_service" },];
