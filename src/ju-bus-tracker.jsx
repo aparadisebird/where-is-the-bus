@@ -161,7 +161,25 @@ export default function App() {
     }
   };
   
-  const handleResetLocation = () => setModal({ title: 'Confirm Reset', message: 'Are you sure you want to clear ALL active bus locations?', type: 'confirm', onConfirm: () => remove(ref(db, ACTIVE_TRIPS_PATH)).then(() => setModal({ title: 'Success', message: 'All locations cleared.', type: 'alert' }))});
+  const handleResetLocation = () => {
+    setModal({
+        title: 'Confirm Reset',
+        message: 'Are you sure you want to clear ALL active bus locations?',
+        type: 'confirm',
+        onConfirm: () => {
+            remove(ref(db, ACTIVE_TRIPS_PATH))
+                .then(() => {
+                    setActiveBusLocations({}); // Explicitly clear local state
+                    setModal({ title: 'Success', message: 'All locations cleared.', type: 'alert' });
+                })
+                .catch((error) => {
+                    console.error("Reset locations error:", error);
+                    setModal({ title: 'Error', message: 'Failed to reset locations.', type: 'alert' });
+                });
+        }
+    });
+  };
+  
   const toggleAdminView = () => isAdmin ? setIsAdmin(false) : setShowPasswordPrompt(true);
   const handlePasswordSubmit = (password) => {
     setShowPasswordPrompt(false);
