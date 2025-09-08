@@ -202,6 +202,21 @@ const GoogleMapComponent = ({ busLocation }) => {
       mapInstance.current = new window.google.maps.Map(mapDivRef.current, {
         center: { lat: 23.81, lng: 90.33 }, zoom: 12, disableDefaultUI: true, zoomControl: true, mapId: "1c2f6d2f7f2868a",
       });
+
+      // --- NEW: Add custom route label to the map ---
+      const routeLabelDiv = document.createElement('div');
+      Object.assign(routeLabelDiv.style, {
+          backgroundColor: '#fff',
+          border: '1px solid #ccc',
+          borderRadius: '8px',
+          boxShadow: '0 2px 6px rgba(0,0,0,.15)',
+          margin: '10px',
+          padding: '8px 12px',
+          textAlign: 'center'
+      });
+      routeLabelDiv.innerHTML = '<div style="font-size: 16px; font-weight: bold; color: #333; margin: 0;">Campus ↔ Bongobazar</div>';
+      mapInstance.current.controls[window.google.maps.ControlPosition.TOP_CENTER].push(routeLabelDiv);
+
     }
   }, [isApiLoaded]);
 
