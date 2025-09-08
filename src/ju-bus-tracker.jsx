@@ -73,8 +73,8 @@ export default function App() {
   const [showTripSelector, setShowTripSelector] = useState(false);
   const [announcement, setAnnouncement] = useState('');
   const [announcementInput, setAnnouncementInput] = useState('');
-  const [currentPage, setCurrentPage] = useState('map'); // NEW: Page state
-  const [showNavMenu, setShowNavMenu] = useState(false); // NEW: Nav menu state
+  const [currentPage, setCurrentPage] = useState('map'); 
+  const [showNavMenu, setShowNavMenu] = useState(false); 
   const watchId = useRef(null);
   const sharingTimeout = useRef(null);
 
@@ -149,68 +149,75 @@ export default function App() {
   return (
     <div className="min-h-screen bg-gray-100 font-sans flex flex-col items-center text-gray-800">
       <header className="w-full bg-green-700 text-white p-4 shadow-md sticky top-0 z-30 flex justify-between items-center">
-        {/* Left Icon */}
         <button onClick={() => setShowNavMenu(true)} className="p-2 rounded-md hover:bg-white/20 transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
         </button>
-        
-        {/* Centered Title */}
         <div className="text-center">
             <h1 className="text-xl sm:text-2xl font-bold">JU Bus Tracker</h1>
             <p className="text-xs sm:text-sm -mt-1 capitalize">{currentPage.replace('-', ' ')}</p>
         </div>
-
-        {/* Right Button */}
-        <button onClick={() => setShowSchedule(true)} className="bg-white/20 hover:bg-white/30 text-white font-bold py-2 px-2 sm:px-4 rounded-lg flex items-center transition-colors text-sm">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:mr-2" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
-            </svg>
-            <span className="hidden sm:inline">Schedule</span>
-        </button>
+        <div className="flex items-center space-x-1 sm:space-x-2">
+            <button onClick={() => setCurrentPage('hear-radio')} className="bg-white/20 hover:bg-white/30 text-white font-bold py-2 px-2 sm:px-4 rounded-lg flex items-center transition-colors text-sm">
+                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z" /></svg>
+                <span className="hidden sm:inline">Radio</span>
+            </button>
+            <button onClick={() => setShowSchedule(true)} className="bg-white/20 hover:bg-white/30 text-white font-bold py-2 px-2 sm:px-4 rounded-lg flex items-center transition-colors text-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:mr-2" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" /></svg>
+                <span className="hidden sm:inline">Schedule</span>
+            </button>
+        </div>
       </header>
 
-      <NavigationMenu 
-        showNavMenu={showNavMenu} 
-        setShowNavMenu={setShowNavMenu} 
-        setCurrentPage={setCurrentPage}
-      />
+      <NavigationMenu showNavMenu={showNavMenu} setShowNavMenu={setShowNavMenu} setCurrentPage={setCurrentPage} />
       
-      <main className="w-full max-w-4xl p-4 flex-grow">
-        {announcement && announcement.trim() !== '' && (
-            <div className="bg-yellow-200 border-l-4 border-yellow-500 text-yellow-800 p-4 mb-4 rounded-lg shadow-md" role="alert">
-                <p className="font-bold">Announcement</p>
-                <p>{announcement}</p>
-            </div>
-        )}
-        
-        {currentPage === 'map' && (
-            <>
-                <div className="w-full h-96 bg-gray-300 rounded-lg shadow-lg mb-6 relative overflow-hidden"><GoogleMapComponent busLocations={activeBusLocations} /></div>
-                <div className="bg-white p-6 rounded-lg shadow-lg text-center">
-                    <h2 className="text-xl font-semibold mb-2">Are you on the bus?</h2>
-                    <p className="text-gray-600 mb-4">Help fellow students by sharing the bus's location.</p>
-                    <button onClick={handleShareButtonClick} className={`px-8 py-3 rounded-full font-bold text-white transition-all duration-300 transform hover:scale-105 ${isSharing ? 'bg-red-500 hover:bg-red-600' : 'bg-green-600 hover:bg-green-700'}`}>{isSharing ? `Stop Sharing (${sharingTripTime})` : 'Share My Location'}</button>
-                    {isSharing && <p className="text-sm text-green-600 mt-2 animate-pulse">Sharing your location live...</p>}
-                </div>
-            </>
-        )}
-
-        {currentPage === 'how-to-use' && <HowToUsePage />}
-        {currentPage === 'about' && <AboutPage />}
-        {currentPage === 'contact' && <ContactPage />}
-        {currentPage === 'hear-radio' && <RadioPage setModal={setModal} />} 
-        
-        {isAdmin && (
-             <div className="mt-6 bg-white p-6 rounded-lg shadow-lg">
-                <h2 className="text-xl font-semibold mb-4 text-center">Admin Panel</h2>
-                <div className="flex flex-col items-center space-y-4">
-                    <h3 className="text-lg font-medium">Manage Announcements</h3>
-                    <textarea value={announcementInput} onChange={(e) => setAnnouncementInput(e.target.value)} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Type announcement here..."></textarea>
-                    <div className="flex space-x-4"><button onClick={handlePublishAnnouncement} className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">Publish</button><button onClick={handleClearAnnouncement} className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">Clear</button></div>
-                    <hr className="w-full my-4" /><h3 className="text-lg font-medium">Manage Bus Data</h3><button onClick={handleResetLocation} className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded">Reset ALL Locations</button>
-                </div>
-            </div>
-        )}
+      <main className="w-full flex-grow flex flex-col">
+          {announcement && announcement.trim() !== '' && (
+              <div className="w-full max-w-4xl mx-auto p-4">
+                  <div className="bg-yellow-200 border-l-4 border-yellow-500 text-yellow-800 p-4 rounded-lg shadow-md" role="alert">
+                      <p className="font-bold">Announcement</p>
+                      <p>{announcement}</p>
+                  </div>
+              </div>
+          )}
+          
+          {currentPage === 'map' ? (
+              <>
+                  <div className="w-full h-96 md:h-[500px] flex-grow bg-gray-300 relative">
+                    <GoogleMapComponent busLocations={activeBusLocations} />
+                  </div>
+                  <div className="w-full bg-white">
+                    <div className="max-w-4xl mx-auto p-4">
+                        <div className="p-6 text-center">
+                            <h2 className="text-xl font-semibold mb-2">Are you on the bus?</h2>
+                            <p className="text-gray-600 mb-4">Help fellow students by sharing the bus's location.</p>
+                            <button onClick={handleShareButtonClick} className={`px-8 py-3 rounded-full font-bold text-white transition-all duration-300 transform hover:scale-105 ${isSharing ? 'bg-red-500 hover:bg-red-600' : 'bg-green-600 hover:bg-green-700'}`}>{isSharing ? `Stop Sharing (${sharingTripTime})` : 'Share My Location'}</button>
+                            {isSharing && <p className="text-sm text-green-600 mt-2 animate-pulse">Sharing your location live...</p>}
+                        </div>
+                    </div>
+                  </div>
+              </>
+          ) : (
+              <div className="w-full max-w-4xl mx-auto p-4">
+                  {currentPage === 'how-to-use' && <HowToUsePage />}
+                  {currentPage === 'about' && <AboutPage />}
+                  {currentPage === 'contact' && <ContactPage />}
+                  {currentPage === 'hear-radio' && <RadioPage setModal={setModal} />} 
+              </div>
+          )}
+          
+          {isAdmin && (
+               <div className="w-full max-w-4xl mx-auto p-4">
+                   <div className="mt-6 bg-white p-6 rounded-lg shadow-lg">
+                      <h2 className="text-xl font-semibold mb-4 text-center">Admin Panel</h2>
+                      <div className="flex flex-col items-center space-y-4">
+                          <h3 className="text-lg font-medium">Manage Announcements</h3>
+                          <textarea value={announcementInput} onChange={(e) => setAnnouncementInput(e.target.value)} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Type announcement here..."></textarea>
+                          <div className="flex space-x-4"><button onClick={handlePublishAnnouncement} className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">Publish</button><button onClick={handleClearAnnouncement} className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">Clear</button></div>
+                          <hr className="w-full my-4" /><h3 className="text-lg font-medium">Manage Bus Data</h3><button onClick={handleResetLocation} className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded">Reset ALL Locations</button>
+                      </div>
+                  </div>
+               </div>
+          )}
       </main>
 
        <footer className="w-full p-4 text-center text-xs text-gray-600"><p>&copy; {new Date().getFullYear()} JU Bus Tracker.</p><button onClick={toggleAdminView} className="text-blue-500 hover:underline mt-2">{isAdmin ? 'Exit Admin Mode' : 'Admin Access'}</button></footer>
@@ -229,171 +236,60 @@ const NavigationMenu = ({ showNavMenu, setShowNavMenu, setCurrentPage }) => {
         setCurrentPage(page);
         setShowNavMenu(false);
     };
-
     return (
-        <>
-            <div className={`fixed inset-0 bg-black/60 z-40 transition-opacity ${showNavMenu ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} onClick={() => setShowNavMenu(false)}></div>
-            <div className={`fixed top-0 left-0 h-full w-64 bg-white shadow-lg z-50 transform transition-transform ${showNavMenu ? 'translate-x-0' : '-translate-x-full'}`}>
-                <div className="p-4 border-b">
-                    <h2 className="text-xl font-bold text-green-700">Menu</h2>
-                </div>
-                <nav className="p-4 flex flex-col space-y-2">
-                    <button onClick={() => navigate('map')} className="text-left p-2 rounded hover:bg-gray-100 transition-colors">Live Map</button>
-                    <button onClick={() => navigate('hear-radio')} className="text-left p-2 rounded hover:bg-gray-100 transition-colors">Hear Radio</button>
-                    <button onClick={() => navigate('how-to-use')} className="text-left p-2 rounded hover:bg-gray-100 transition-colors">How to Use</button>
-                    <button onClick={() => navigate('about')} className="text-left p-2 rounded hover:bg-gray-100 transition-colors">About This Project</button>
-                    <button onClick={() => navigate('contact')} className="text-left p-2 rounded hover:bg-gray-100 transition-colors">Contact</button>
-                </nav>
-            </div>
-        </>
+        <><div className={`fixed inset-0 bg-black/60 z-40 transition-opacity ${showNavMenu ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} onClick={() => setShowNavMenu(false)}></div><div className={`fixed top-0 left-0 h-full w-64 bg-white shadow-lg z-50 transform transition-transform ${showNavMenu ? 'translate-x-0' : '-translate-x-full'}`}><div className="p-4 border-b"><h2 className="text-xl font-bold text-green-700">Menu</h2></div><nav className="p-4 flex flex-col space-y-2"><button onClick={() => navigate('map')} className="text-left p-2 rounded hover:bg-gray-100 transition-colors">Live Map</button><button onClick={() => navigate('how-to-use')} className="text-left p-2 rounded hover:bg-gray-100 transition-colors">How to Use</button><button onClick={() => navigate('about')} className="text-left p-2 rounded hover:bg-gray-100 transition-colors">About This Project</button><button onClick={() => navigate('contact')} className="text-left p-2 rounded hover:bg-gray-100 transition-colors">Contact</button></nav></div></>
     );
 };
 
-const PageCard = ({ title, children }) => (
-    <div className="bg-white p-6 rounded-lg shadow-lg animate-fade-in">
-        <h2 className="text-2xl font-bold mb-4 text-gray-800 border-b pb-2">{title}</h2>
-        <div className="text-gray-700 space-y-4">
-            {children}
-        </div>
-    </div>
-);
-
-const HowToUsePage = () => (
-    <PageCard title="How to Use">
-        <p>This tool is designed to be simple. Here’s how it works:</p>
-        <ul className="list-decimal list-inside space-y-2 pl-4">
-            <li><b>View the Map:</b> The main page shows a live map with the current location of active buses.</li>
-            <li><b>Share Your Location:</b> If you are on a bus, click the "Share My Location" button. This helps everyone see where the bus is.</li>
-            <li><b>Check the Schedule:</b> Click the "Schedule" button in the top-right corner to see all departure times.</li>
-            <li><b>Listen to Radio:</b> Open the menu and go to "Hear Radio" to listen to live FM stations.</li>
-        </ul>
-    </PageCard>
-);
-
-const AboutPage = () => (
-    <PageCard title="About This Project">
-        <p>This project was created to solve a simple problem for the students of Jahangirnagar University: the frustration of not knowing when the next bus will arrive.</p>
-        <p>By using crowdsourced, real-time location data, this tool aims to make the campus transportation system more predictable and less stressful for everyone.</p>
-        <p><b>Your Name Here:</b> Feel free to add a paragraph about yourself, your department, and your motivation for building this amazing tool!</p>
-    </PageCard>
-);
-
-const ContactPage = () => (
-    <PageCard title="Contact">
-        <p>Have questions, suggestions, or want to contribute to this project? Get in touch!</p>
-        <p>Please replace the placeholder text below with your actual contact information.</p>
-        <ul className="list-disc list-inside space-y-2 pl-4">
-            <li><b>Email:</b> your.email@example.com</li>
-            <li><b>LinkedIn:</b> linkedin.com/in/yourprofile</li>
-            <li><b>GitHub:</b> github.com/yourusername</li>
-        </ul>
-    </PageCard>
-);
+const PageCard = ({ title, children }) => (<div className="bg-white p-6 rounded-lg shadow-lg animate-fade-in"><h2 className="text-2xl font-bold mb-4 text-gray-800 border-b pb-2">{title}</h2><div className="text-gray-700 space-y-4">{children}</div></div>);
+const HowToUsePage = () => (<PageCard title="How to Use"><p>This tool is designed to be simple. Here’s how it works:</p><ul className="list-decimal list-inside space-y-2 pl-4"><li><b>View the Map:</b> The main page shows a live map with the current location of active buses.</li><li><b>Share Your Location:</b> If you are on a bus, click the "Share My Location" button. This helps everyone see where the bus is.</li><li><b>Check the Schedule:</b> Click the "Schedule" button in the top-right corner to see all departure times.</li><li><b>Listen to Radio:</b> Click the "Radio" button in the top-right to listen to live FM stations.</li></ul></PageCard>);
+const AboutPage = () => (<PageCard title="About This Project"><p>This project was created to solve a simple problem for the students of Jahangirnagar University: the frustration of not knowing when the next bus will arrive.</p><p>By using crowdsourced, real-time location data, this tool aims to make the campus transportation system more predictable and less stressful for everyone.</p><p><b>Your Name Here:</b> Feel free to add a paragraph about yourself, your department, and your motivation for building this amazing tool!</p></PageCard>);
+const ContactPage = () => (<PageCard title="Contact"><p>Have questions, suggestions, or want to contribute to this project? Get in touch!</p><p>Please replace the placeholder text below with your actual contact information.</p><ul className="list-disc list-inside space-y-2 pl-4"><li><b>Email:</b> your.email@example.com</li><li><b>LinkedIn:</b> linkedin.com/in/yourprofile</li><li><b>GitHub:</b> github.com/yourusername</li></ul></PageCard>);
 
 const RadioPage = ({ setModal }) => {
-    const LOCAL_STATIONS = [
-        { name: "Radio Foorti 88.0 FM", url: "https://stream.zeno.fm/g27wrm2kttzuv" },
-        { name: "Bangladesh Betar", url: "https://stream.zeno.fm/s44323" },
-    ];
-    
-    const MUSIC_STATIONS = [
-        { name: "Radio Mirchi 98.3 (India)", url: "https://stream.zeno.fm/y756wns5xzquv" },
-    ];
-
-    const INTERNATIONAL_STATIONS = [
-        { name: "NPR News (USA)", url: "https://npr-ice.streamguys1.com/live.mp3" },
-        { name: "BBC World Service (UK/Global)", url: "https://stream.live.vc.bbcmedia.co.uk/bbc_world_service" },
-    ];
-    
-    const [currentStation, setCurrentStation] = useState(null);
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [isLoading, setIsLoading] = useState(null);
-    const audioRef = useRef(null);
-
-    const togglePlayPause = (station) => {
-        if (currentStation && currentStation.url === station.url) {
-            if (isPlaying) audioRef.current.pause();
-            else audioRef.current.play();
-        } else {
-            setCurrentStation(station);
-            setIsLoading(station.url);
-        }
-    };
-
-    useEffect(() => {
-        if (currentStation && audioRef.current) {
-            audioRef.current.src = currentStation.url;
-            audioRef.current.play().catch(error => {
-                console.error("Audio play error:", error);
-                setModal({title: "Playback Error", message: `Could not play ${currentStation.name}. The station may be temporarily offline or blocking playback.`, type: 'alert'});
-                setIsLoading(null);
-                setIsPlaying(false);
-            });
-        }
-    }, [currentStation]);
-
-    const handleOnCanPlay = () => {
-        setIsLoading(null);
-        setIsPlaying(true);
-    };
-    
-    const StationList = ({ stations }) => (
-        <div className="space-y-2">
-            {stations.map(station => (
-                <div key={station.name} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <span className="font-medium text-gray-800">{station.name}</span>
-                    <button onClick={() => togglePlayPause(station)} className="w-12 h-12 flex items-center justify-center rounded-full bg-green-500 text-white hover:bg-green-600 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50" disabled={isLoading}>
-                        {isLoading === station.url ? ( <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div> ) : (isPlaying && currentStation?.url === station.url ? ( <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> ) : ( <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> ))}
-                    </button>
-                </div>
-            ))}
-        </div>
-    );
-
-    return (
-        <PageCard title="Hear Radio">
-            <p>Listen to live radio stations from Bangladesh and around the world.</p>
-            <div className="mt-4">
-                <audio ref={audioRef} onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} onCanPlay={handleOnCanPlay} crossOrigin="anonymous"></audio>
-                
-                <h3 className="text-lg font-semibold text-gray-700 mt-6 mb-2">Local Stations (BD)</h3>
-                <StationList stations={LOCAL_STATIONS} />
-
-                <h3 className="text-lg font-semibold text-gray-700 mt-8 mb-2">Music (India)</h3>
-                <StationList stations={MUSIC_STATIONS} />
-
-                <h3 className="text-lg font-semibold text-gray-700 mt-8 mb-2">International News</h3>
-                <StationList stations={INTERNATIONAL_STATIONS} />
-                
-                {currentStation && (
-                    <div className="mt-6 text-center p-4 bg-green-100 border border-green-200 rounded-lg">
-                        <p className="text-sm text-green-700">{isLoading === currentStation.url ? "Connecting..." : (isPlaying ? "Currently Playing:" : "Paused")}</p>
-                        <p className="font-bold text-green-800">{currentStation.name}</p>
-                    </div>
-                )}
-            </div>
-        </PageCard>
-    );
+    const INTERNATIONAL_NEWS_STATIONS = [{ name: "NPR News (USA)", url: "https://npr-ice.streamguys1.com/live.mp3" }, { name: "BBC World Service (UK/Global)", url: "https://stream.live.vc.bbcmedia.co.uk/bbc_world_service" },];
+    const INTERNATIONAL_MUSIC_STATIONS = [{ name: "SomaFM PopTron (USA)", url: "https://ice4.somafm.com/poptron-128-mp3" },];
+    const [currentStation, setCurrentStation] = useState(null); const [isPlaying, setIsPlaying] = useState(false); const [isLoading, setIsLoading] = useState(null); const audioRef = useRef(null);
+    const togglePlayPause = (station) => { if (currentStation && currentStation.url === station.url) { if (isPlaying) audioRef.current.pause(); else audioRef.current.play(); } else { setCurrentStation(station); setIsLoading(station.url); } };
+    useEffect(() => { if (currentStation && audioRef.current) { audioRef.current.src = currentStation.url; audioRef.current.play().catch(error => { console.error("Audio play error:", error); setModal({title: "Playback Error", message: `Could not play ${currentStation.name}. The station may be temporarily offline or blocking playback.`, type: 'alert'}); setIsLoading(null); setIsPlaying(false); }); } }, [currentStation]);
+    const handleOnCanPlay = () => { setIsLoading(null); setIsPlaying(true); };
+    const StationList = ({ stations }) => (<div className="space-y-2">{stations.map(station => (<div key={station.name} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"><span className="font-medium text-gray-800">{station.name}</span><button onClick={() => togglePlayPause(station)} className="w-12 h-12 flex items-center justify-center rounded-full bg-green-500 text-white hover:bg-green-600 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50" disabled={isLoading}>{isLoading === station.url ? ( <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div> ) : (isPlaying && currentStation?.url === station.url ? ( <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> ) : ( <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> ))} </button></div>))}</div>);
+    return (<PageCard title="Hear Radio"><p>Listen to live radio stations from around the world.</p><div className="mt-4"><audio ref={audioRef} onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} onCanPlay={handleOnCanPlay} crossOrigin="anonymous"></audio><h3 className="text-lg font-semibold text-gray-700 mt-6 mb-2">International News</h3><StationList stations={INTERNATIONAL_NEWS_STATIONS} /><h3 className="text-lg font-semibold text-gray-700 mt-8 mb-2">International Music</h3><StationList stations={INTERNATIONAL_MUSIC_STATIONS} />{currentStation && (<div className="mt-6 text-center p-4 bg-green-100 border border-green-200 rounded-lg"><p className="text-sm text-green-700">{isLoading === currentStation.url ? "Connecting..." : (isPlaying ? "Currently Playing:" : "Paused")}</p><p className="font-bold text-green-800">{currentStation.name}</p></div>)}</div></PageCard>);
 };
 
 const GoogleMapComponent = ({ busLocations }) => {
+  const mapContainerRef = useRef(null);
   const mapDivRef = useRef(null);
-  const mapInstance = useRef(null);
-  const markers = useRef({});
   const [isApiLoaded, setApiLoaded] = useState(false);
+  const markers = useRef({});
+  const mapInstance = useRef(null);
+
+  const handleFullScreen = () => {
+    if (!document.fullscreenElement) {
+        mapContainerRef.current.requestFullscreen().catch(err => {
+            alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+        });
+    } else {
+        document.exitFullscreen();
+    }
+  };
 
   useEffect(() => {
     if (window.google && window.google.maps) { setApiLoaded(true); return; }
-    if (document.getElementById('google-maps-script')) return;
+    if (document.getElementById('google-maps-script')) { setApiLoaded(true); return; }
+    
+    window.initMap = () => setApiLoaded(true);
+
     const script = document.createElement('script');
     script.id = 'google-maps-script';
     script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&callback=initMap`;
-    script.async = true; script.defer = true;
-    window.initMap = () => document.dispatchEvent(new Event('google-maps-api-loaded'));
-    const onApiLoad = () => setApiLoaded(true);
-    document.addEventListener('google-maps-api-loaded', onApiLoad);
+    script.async = true;
+    script.defer = true;
     document.head.appendChild(script);
-    return () => document.removeEventListener('google-maps-api-loaded', onApiLoad);
+
+    return () => {
+        delete window.initMap;
+    }
   }, []);
 
   useEffect(() => {
@@ -453,8 +349,16 @@ const GoogleMapComponent = ({ busLocations }) => {
     }
 }, [busLocations, isApiLoaded]);
 
-  if (!isApiLoaded) return <div className="flex items-center justify-center h-full">Loading Map...</div>;
-  return <div ref={mapDivRef} style={{ width: '100%', height: '100%' }} />;
+  return (
+    <div ref={mapContainerRef} className="w-full h-full relative">
+        <div ref={mapDivRef} className="w-full h-full bg-gray-200">
+            {!isApiLoaded && (<div className="absolute inset-0 flex items-center justify-center bg-gray-300 z-20"><p>Loading Map...</p></div>)}
+        </div>
+        <button onClick={handleFullScreen} className="absolute top-2 right-2 z-10 bg-white/80 p-2 rounded-md shadow-lg hover:bg-white transition-transform duration-200 hover:scale-110" aria-label="Toggle fullscreen">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 0h-4m4 0l-5-5" /></svg>
+        </button>
+    </div>
+  );
 };
 
 // --- Modals and Data ---
