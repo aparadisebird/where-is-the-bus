@@ -157,6 +157,12 @@ export default function App() {
             <p className="text-xs sm:text-sm -mt-1 capitalize">{currentPage.replace('-', ' ')}</p>
         </div>
         <div className="flex items-center space-x-1 sm:space-x-2">
+            <button onClick={() => setCurrentPage('map')} className="bg-white/20 hover:bg-white/30 text-white font-bold py-2 px-2 sm:px-4 rounded-lg flex items-center transition-colors text-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l5.447 2.724A1 1 0 0021 16.382V5.618a1 1 0 00-1.447-.894L15 7m0 10V7m0 0L9 4" />
+                </svg>
+                <span className="hidden sm:inline">Map</span>
+            </button>
             <button onClick={() => setCurrentPage('hear-radio')} className="bg-white/20 hover:bg-white/30 text-white font-bold py-2 px-2 sm:px-4 rounded-lg flex items-center transition-colors text-sm">
                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z" /></svg>
                 <span className="hidden sm:inline">Radio</span>
@@ -237,7 +243,7 @@ const NavigationMenu = ({ showNavMenu, setShowNavMenu, setCurrentPage }) => {
         setShowNavMenu(false);
     };
     return (
-        <><div className={`fixed inset-0 bg-black/60 z-40 transition-opacity ${showNavMenu ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} onClick={() => setShowNavMenu(false)}></div><div className={`fixed top-0 left-0 h-full w-64 bg-white shadow-lg z-50 transform transition-transform ${showNavMenu ? 'translate-x-0' : '-translate-x-full'}`}><div className="p-4 border-b"><h2 className="text-xl font-bold text-green-700">Menu</h2></div><nav className="p-4 flex flex-col space-y-2"><button onClick={() => navigate('map')} className="text-left p-2 rounded hover:bg-gray-100 transition-colors">Live Map</button><button onClick={() => navigate('how-to-use')} className="text-left p-2 rounded hover:bg-gray-100 transition-colors">How to Use</button><button onClick={() => navigate('about')} className="text-left p-2 rounded hover:bg-gray-100 transition-colors">About This Project</button><button onClick={() => navigate('contact')} className="text-left p-2 rounded hover:bg-gray-100 transition-colors">Contact</button></nav></div></>
+        <><div className={`fixed inset-0 bg-black/60 z-40 transition-opacity ${showNavMenu ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} onClick={() => setShowNavMenu(false)}></div><div className={`fixed top-0 left-0 h-full w-64 bg-white shadow-lg z-50 transform transition-transform ${showNavMenu ? 'translate-x-0' : '-translate-x-full'}`}><div className="p-4 border-b"><h2 className="text-xl font-bold text-green-700">Menu</h2></div><nav className="p-4 flex flex-col space-y-2"><button onClick={() => navigate('how-to-use')} className="text-left p-2 rounded hover:bg-gray-100 transition-colors">How to Use</button><button onClick={() => navigate('about')} className="text-left p-2 rounded hover:bg-gray-100 transition-colors">About This Project</button><button onClick={() => navigate('contact')} className="text-left p-2 rounded hover:bg-gray-100 transition-colors">Contact</button></nav></div></>
     );
 };
 
